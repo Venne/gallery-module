@@ -1,0 +1,7 @@
+{block #head}{$route->title}{/block}
+
+{block #content}
+
+{includeblock ../../../../Resources/layouts/@category.latte}
+
+{include #category photos=>$category->photos, size=>'300x', flags=>0}

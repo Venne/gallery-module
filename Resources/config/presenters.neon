@@ -1,0 +1,8 @@
+services:
+	gallery.pagePresenter:
+		class: GalleryModule\Presenters\PagePresenter(@gallery.categoryRepository)
+		tags: [presenter]
+
+	gallery.categoryPresenter:
+		class: GalleryModule\Presenters\CategoryPresenter(@gallery.categoryRepository)
+		tags: [presenter]

@@ -1,0 +1,18 @@
+services:
+	gallery.catalogContent:
+		class: CmsModule\Content\ContentType('GalleryModule\Entities\PageEntity')
+		setup:
+			- addSection('Galleries', @gallery.galleriesControlFactory)
+		tags: [contentType: [name: 'photo gallery']]
+
+	gallery.categoryRepository:
+		class: GalleryModule\Entities\CategoryEntity
+		tags: [repository]
+
+	gallery.photoRepository:
+		class: GalleryModule\Entities\PhotoEntity
+		tags: [repository]
+
+includes:
+	- presenters.neon
+	- components.neon
