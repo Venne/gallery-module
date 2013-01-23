@@ -21,7 +21,7 @@
 		{foreach $control->getCategoryEntity()->photos as $photo}
 		<li id="photo-{$photo->id}">
 			<div class="thumbnail">
-				<img class="handle" style="width: 150px; height: 150px; cursor: move;" n:src="$photo->photo->getFileUrl(TRUE) size=>'150x150', format=>8">
+				<img class="handle" style="width: 168px; height: 168px; cursor: move;" n:src="$photo->photo->getFileUrl(TRUE) size=>'168x168', format=>8">
 				<div class="caption">
 					<a href="{link edit! $photo->id}" class="ajax btn btn-mini btn-primary">{_Edit}</a>
 					<a href="{link delete! $photo->id}" class="ajax pull-right btn btn-mini pull-right">{_Remove}</a>
