@@ -23,12 +23,13 @@
 			"dev-master": "2.0.x-dev"
 		},
 		"venne": {
+			"installers": ["DoctrineModule\\Module\\Installers\\DoctrineInstaller"],
 			"configuration": {
 				"includes": [
 					"%modules.gallery.path%/Resources/config/config.neon"
 				],
-				"translator":{
-					"dictionaries":[
+				"translator": {
+					"dictionaries": [
 						"%modules.gallery.path%/Resources/translations"
 					]
 				}

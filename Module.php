@@ -19,15 +19,5 @@ use Venne\Module\ComposerModule;
  */
 class Module extends ComposerModule
 {
-	/**
-	 * Get installers as string
-	 *
-	 * @return array
-	 */
-	public function getInstallers()
-	{
-		return array_merge(parent::getInstallers(), array(
-			'DoctrineModule\Module\Installers\DoctrineInstaller',
-		));
-	}
+
 }
