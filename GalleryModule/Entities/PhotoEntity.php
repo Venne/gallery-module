@@ -9,7 +9,7 @@ use CmsModule\Content\Entities\FileEntity;
 
 /**
  * @author Josef Kříž <pepakriz@gmail.com>
- * @ORM\Entity(repositoryClass="\DoctrineModule\Repositories\BaseRepository")
+ * @ORM\Entity(repositoryClass="\GalleryModule\Repositories\PhotoRepository")
  * @ORM\Table(name="gallery_photo")
  */
 class PhotoEntity extends \DoctrineModule\Entities\IdentifiedEntity

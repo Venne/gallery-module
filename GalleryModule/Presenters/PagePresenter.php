@@ -11,8 +11,7 @@
 
 namespace GalleryModule\Presenters;
 
-use Venne;
-use DoctrineModule\Repositories\BaseRepository;
+use GalleryModule\Repositories\CategoryRepository;
 
 /**
  * @author Josef Kříž <pepakriz@gmail.com>
@@ -20,14 +19,14 @@ use DoctrineModule\Repositories\BaseRepository;
 class PagePresenter extends \CmsModule\Content\Presenters\PagePresenter
 {
 
-	/** @var BaseRepository */
+	/** @var CategoryRepository */
 	protected $categoryRepository;
 
 
 	/**
-	 * @param \DoctrineModule\Repositories\BaseRepository $categoryRepository
+	 * @param \GalleryModule\Repositories\CategoryRepository $categoryRepository
 	 */
-	public function __construct(BaseRepository $categoryRepository)
+	public function injectCategoryRepository(CategoryRepository $categoryRepository)
 	{
 		$this->categoryRepository = $categoryRepository;
 	}

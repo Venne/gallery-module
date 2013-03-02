@@ -17,11 +17,10 @@ use GalleryModule\Forms\GalleryFormFactory;
 use GalleryModule\Forms\PhotoFormFactory;
 use GalleryModule\Forms\SortFormFactory;
 use GalleryModule\Forms\UploadFormFactory;
+use GalleryModule\Repositories\CategoryRepository;
+use GalleryModule\Repositories\PhotoRepository;
 use Kdyby\Extension\Forms\BootstrapRenderer\BootstrapRenderer;
-use Venne;
 use CmsModule\Content\SectionControl;
-use DoctrineModule\Repositories\BaseRepository;
-use Nette\Callback;
 
 /**
  * @author Josef Kříž <pepakriz@gmail.com>
@@ -35,10 +34,10 @@ class GalleriesControl extends SectionControl
 	/** @persistent */
 	public $id;
 
-	/** @var BaseRepository */
+	/** @var CategoryRepository */
 	protected $categoryRepository;
 
-	/** @var BaseRepository */
+	/** @var PhotoRepository */
 	protected $photoRepository;
 
 	/** @var ProductFormFactory */
@@ -54,7 +53,7 @@ class GalleriesControl extends SectionControl
 	protected $photoFormFactory;
 
 
-	public function __construct(BaseRepository $categoryRepository, BaseRepository $photoRepository, GalleryFormFactory $galleryFormFactory, UploadFormFactory $uploadFormFactory, SortFormFactory $sortFormFactory, PhotoFormFactory $photoFormFactory)
+	public function __construct(CategoryRepository $categoryRepository, PhotoRepository $photoRepository, GalleryFormFactory $galleryFormFactory, UploadFormFactory $uploadFormFactory, SortFormFactory $sortFormFactory, PhotoFormFactory $photoFormFactory)
 	{
 		parent::__construct();
 
@@ -133,16 +132,6 @@ class GalleriesControl extends SectionControl
 		$form = $table->addForm($this->galleryFormFactory, 'Gallery', function () use ($_this) {
 			return new \GalleryModule\Entities\CategoryEntity($_this->entity, '');
 		});
-		$form->onCreate[] = function ($form) use ($_this) {
-			$form->onSuccess[] = function ($form) use ($_this) {
-				$entity = $form->data;
-				if (!$_this->presenter->isAjax()) {
-					$_this->redirect('this', array('key' => $entity->id));
-				}
-				$_this->presenter->payload->url = $_this->link('this', array('key' => $entity->id));
-				$_this->key = $entity->id;
-			};
-		};
 
 		// navbar
 		$table->addButtonCreate('create', 'Create new', $form, 'shopping-cart');

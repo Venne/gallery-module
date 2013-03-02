@@ -23,5 +23,5 @@ services:
 factories:
 
 	gallery.galleriesControl:
-		class: GalleryModule\Components\GalleriesControl(@gallery.categoryRepository, @gallery.photoRepository)
+		class: GalleryModule\Components\GalleriesControl
 		tags: [component]

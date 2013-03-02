@@ -6,12 +6,14 @@ services:
 		tags: [contentType: [name: 'photo gallery']]
 
 	gallery.categoryRepository:
-		class: GalleryModule\Entities\CategoryEntity
-		tags: [repository]
+		class: GalleryModule\Repositories\CategoryRepository
+		factory: @entityManager::getRepository('GalleryModule\Entities\CategoryEntity')
+		tags: [proxy: DoctrineModule\Repositories\BaseRepository]
 
 	gallery.photoRepository:
-		class: GalleryModule\Entities\PhotoEntity
-		tags: [repository]
+		class: GalleryModule\Repositories\PhotoRepository
+		factory: @entityManager::getRepository('GalleryModule\Entities\PhotoEntity')
+		tags: [proxy: DoctrineModule\Repositories\BaseRepository]
 
 includes:
 	- presenters.neon

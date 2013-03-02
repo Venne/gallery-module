@@ -11,7 +11,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @author Josef Kříž <pepakriz@gmail.com>
- * @ORM\Entity(repositoryClass="\DoctrineModule\Repositories\BaseRepository")
+ * @ORM\Entity(repositoryClass="\GalleryModule\Repositories\CategoryRepository")
  * @ORM\Table(name="gallery_category")
  * @ORM\HasLifecycleCallbacks
  */
