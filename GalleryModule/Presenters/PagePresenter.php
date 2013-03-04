@@ -32,8 +32,32 @@ class PagePresenter extends \CmsModule\Content\Presenters\PagePresenter
 	}
 
 
-	public function renderDefault()
+	public function getItemsBuilder()
 	{
-		$this->template->categoryRepository = $this->categoryRepository;
+		return $this->getQueryBuilder()
+			->setMaxResults($this->page->itemsPerPage)
+			->setFirstResult($this['vp']->getPaginator()->getOffset());
+	}
+
+
+	/**
+	 * @return \Doctrine\ORM\QueryBuilder
+	 */
+	protected function getQueryBuilder()
+	{
+		return $this->categoryRepository->createQueryBuilder("a")
+			->leftJoin('a.route', 'r')
+			->andWhere('r.published = :true')->setParameter('true', TRUE)
+			->andWhere('a.page = :page')->setParameter('page', $this->page->id);
+	}
+
+
+	protected function createComponentVp()
+	{
+		$vp = new \CmsModule\Components\VisualPaginator;
+		$pg = $vp->getPaginator();
+		$pg->setItemsPerPage($this->page->itemsPerPage);
+		$pg->setItemCount($this->getQueryBuilder()->select("COUNT(a.id)")->getQuery()->getSingleScalarResult());
+		return $vp;
 	}
 }

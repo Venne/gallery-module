@@ -35,6 +35,12 @@ class PageEntity extends \CmsModule\Content\Entities\PageEntity
 	 */
 	protected $dir;
 
+	/**
+	 * @var string
+	 * @ORM\Column(type="integer")
+	 */
+	protected $itemsPerPage = 10;
+
 
 	public function __construct()
 	{
@@ -43,7 +49,7 @@ class PageEntity extends \CmsModule\Content\Entities\PageEntity
 		$this->mainRoute->type = 'Gallery:Page:default';
 
 		$this->dir = new \CmsModule\Content\Entities\DirEntity();
-		$this->dir->setInvisible(true);
+		$this->dir->setInvisible(TRUE);
 		$this->dir->setName('galleryPage');
 	}
 
@@ -66,5 +72,23 @@ class PageEntity extends \CmsModule\Content\Entities\PageEntity
 	public function getDir()
 	{
 		return $this->dir;
+	}
+
+
+	/**
+	 * @param string $itemsPerPage
+	 */
+	public function setItemsPerPage($itemsPerPage)
+	{
+		$this->itemsPerPage = $itemsPerPage;
+	}
+
+
+	/**
+	 * @return string
+	 */
+	public function getItemsPerPage()
+	{
+		return $this->itemsPerPage;
 	}
 }

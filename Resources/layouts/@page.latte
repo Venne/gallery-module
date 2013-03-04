@@ -1,5 +1,5 @@
 {define #page}
-	{include #page-items categories=>$categoryRepository->findBy(array('page'=>$presenter->page->id), array('created'=>'DESC'))}
+	{include #page-items categories=>$control->getItemsBuilder()->orderBy('a.created', 'DESC')->getQuery()->getResult()}
 {/define}
 
 
@@ -16,11 +16,13 @@
 
 {define #page-items-body}
 	<div class="media">
+
 		{if isset($category->photos[0])}
 			<a class="pull-left thumbnail" n:href="this route=>$category->route">
 				<img class="media-object" src="{img $category->photos[0]->photo->getFileUrl(TRUE), size=>'96x'}">
 			</a>
 		{/if}
+
 		<div class="media-body">
 			<h4 class="media-heading"><a n:href="this route=>$category->route">{$category->name}</a></h4>
 
@@ -28,11 +30,20 @@
 				<small>{$category->created|date: "%d.%m.%Y"}{if $category->updated} | {_updated}: {$category->updated|date: "%d.%m.%Y"}{/if}</small>
 			</p>
 
-			<p>{$category->description}</p>
+			<p>
+				{$category->description}
+			</p>
 		</div>
+
 	</div>
 {/define}
 
 
-{define #page-items-head}{/define}
-{define #page-items-foot}{/define}
+{define #page-items-head}
+{control vp}
+{/define}
+
+
+{define #page-items-foot}
+{control vp}
+{/define}

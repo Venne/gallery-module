@@ -83,6 +83,7 @@ class CategoryEntity extends \DoctrineModule\Entities\IdentifiedEntity
 		$this->name = $name;
 
 		$this->route = new \CmsModule\Content\Entities\RouteEntity;
+		$this->route->setPublished(FALSE);
 		$this->route->setType('Gallery:Category:default');
 		$this->route->setLocalUrl(Strings::webalize($name));
 		$this->route->setPage($this->page);
@@ -93,7 +94,7 @@ class CategoryEntity extends \DoctrineModule\Entities\IdentifiedEntity
 		$this->photos = new ArrayCollection;
 
 		$this->dir = new \CmsModule\Content\Entities\DirEntity();
-		$this->dir->setInvisible(true);
+		$this->dir->setInvisible(TRUE);
 		$this->dir->setParent($page->getDir());
 
 		$this->setName($name);

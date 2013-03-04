@@ -145,6 +145,40 @@ class GalleriesControl extends SectionControl
 			->setSortable(TRUE)
 			->setFilter();
 
+		$repository = $this->categoryRepository;
+		$presenter = $this;
+		$action = $table->addAction('on', 'On');
+		$action->onClick[] = function ($button, $entity) use ($presenter, $repository) {
+			$entity->route->published = TRUE;
+			$repository->save($entity);
+
+			if (!$presenter->presenter->isAjax()) {
+				$presenter->redirect('this');
+			}
+
+			$presenter['table']->invalidateControl('table');
+			$presenter->presenter->payload->url = $presenter->link('this');
+		};
+		$action->onRender[] = function ($button, $entity) use ($presenter, $repository) {
+			$button->setDisabled($entity->route->published);
+		};
+
+		$action = $table->addAction('off', 'Off');
+		$action->onClick[] = function ($button, $entity) use ($presenter, $repository) {
+			$entity->route->published = FALSE;
+			$repository->save($entity);
+
+			if (!$presenter->presenter->isAjax()) {
+				$presenter->redirect('this');
+			}
+
+			$presenter['table']->invalidateControl('table');
+			$presenter->presenter->payload->url = $presenter->link('this');
+		};
+		$action->onRender[] = function ($button, $entity) use ($presenter, $repository) {
+			$button->setDisabled(!$entity->route->published);
+		};
+
 		$table->addAction('show', 'Edit')->onClick[] = function ($button, $entity) use ($_this) {
 			if (!$_this->presenter->isAjax()) {
 				$_this->redirect('this', array('key' => $entity->id));
