@@ -1,4 +1,4 @@
-services:
+factories:
 	gallery.pagePresenter:
 		class: GalleryModule\Presenters\PagePresenter
 		tags: [presenter]
