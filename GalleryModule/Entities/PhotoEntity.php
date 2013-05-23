@@ -17,7 +17,7 @@ class PhotoEntity extends \DoctrineModule\Entities\IdentifiedEntity
 
 	/**
 	 * @var PageEntity
-	 * @ORM\ManyToOne(targetEntity="CategoryEntity")
+	 * @ORM\ManyToOne(targetEntity="CategoryEntity", inversedBy="photos")
 	 * @ORM\JoinColumn(referencedColumnName="id", onDelete="CASCADE")
 	 */
 	protected $category;
