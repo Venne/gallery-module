@@ -159,7 +159,7 @@ class GalleriesControl extends SectionControl
 	}
 
 
-	public function createComponentTable()
+	protected function createComponentTable()
 	{
 		$_this = $this;
 		$admin = new AdminGrid($this->categoryRepository);
