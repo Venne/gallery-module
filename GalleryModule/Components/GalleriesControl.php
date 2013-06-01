@@ -11,6 +11,8 @@
 
 namespace GalleryModule\Components;
 
+use CmsModule\Administration\Components\AdminGrid\AdminGrid;
+use CmsModule\Content\SectionControl;
 use GalleryModule\Entities\CategoryEntity;
 use GalleryModule\Entities\PhotoEntity;
 use GalleryModule\Forms\GalleryFormFactory;
@@ -20,7 +22,6 @@ use GalleryModule\Forms\UploadFormFactory;
 use GalleryModule\Repositories\CategoryRepository;
 use GalleryModule\Repositories\PhotoRepository;
 use Kdyby\Extension\Forms\BootstrapRenderer\BootstrapRenderer;
-use CmsModule\Content\SectionControl;
 
 /**
  * @author Josef Kříž <pepakriz@gmail.com>
@@ -84,6 +85,44 @@ class GalleriesControl extends SectionControl
 	}
 
 
+	public function handleOn($id)
+	{
+		if (!$entity = $this->categoryRepository->find($id)) {
+			throw new BadRequestException;
+		}
+
+		$entity->route->published = TRUE;
+		$this->categoryRepository->save($entity);
+
+		if (!$this->presenter->isAjax()) {
+			$this->redirect('this', array('id' => NULL));
+		}
+
+		$this['table']->invalidateControl('table');
+		$this->presenter->payload->url = $this->link('this', array('id' => NULL));
+		$this->id = NULL;
+	}
+
+
+	public function handleOff($id)
+	{
+		if (!$entity = $this->categoryRepository->find($id)) {
+			throw new BadRequestException;
+		}
+
+		$entity->route->published = FALSE;
+		$this->categoryRepository->save($entity);
+
+		if (!$this->presenter->isAjax()) {
+			$this->redirect('this', array('id' => NULL));
+		}
+
+		$this['table']->invalidateControl('table');
+		$this->presenter->payload->url = $this->link('this', array('id' => NULL));
+		$this->id = NULL;
+	}
+
+
 	public function handleDelete($id)
 	{
 		$categoryEntity = $this->getCategoryEntity();
@@ -120,78 +159,67 @@ class GalleriesControl extends SectionControl
 	}
 
 
-	protected function createComponentTable()
+	public function createComponentTable()
 	{
 		$_this = $this;
+		$admin = new AdminGrid($this->categoryRepository);
 
-		$table = new \CmsModule\Components\Table\TableControl;
-		$table->setTemplateConfigurator($this->templateConfigurator);
-		$table->setRepository($this->categoryRepository);
+		// columns
+		$table = $admin->getTable();
+		$table->setTranslator($this->presenter->context->translator->translator);
+		$table->addColumn('name', 'Name')
+			->setSortable()
+			->getCellPrototype()->width = '40%';
+		$table->getColumn('name')
+			->setFilter()->setSuggestion();
 
-		// forms
-		$form = $table->addForm($this->galleryFormFactory, 'Gallery', function () use ($_this) {
+		$table->addColumn('description', 'Description')
+			->setSortable()
+			->getCellPrototype()->width = '60%';
+
+		// actions
+		$table->addAction('on', 'On')
+			->setCustomRender(function ($entity, $element) {
+				if ((bool)$entity->route->published) {
+					$element->class[] = 'disabled';
+				};
+				return $element;
+			})
+			->setCustomHref(function ($entity) use ($_this) {
+				return $_this->link('on!', array($entity->id));
+			})
+			->getElementPrototype()->class[] = 'ajax';
+		$table->addAction('off', 'Off')
+			->setCustomRender(function ($entity, $element) {
+				if (!(bool)$entity->route->published) {
+					$element->class[] = 'disabled';
+				};
+				return $element;
+			})
+			->setCustomHref(function ($entity) use ($_this) {
+				return $_this->link('off!', array($entity->id));
+			})
+			->getElementPrototype()->class[] = 'ajax';
+
+		$form = $admin->createForm($this->galleryFormFactory, 'Create new', function () use ($_this) {
 			return new \GalleryModule\Entities\CategoryEntity($_this->entity, '');
 		});
 
-		// navbar
-		$table->addButtonCreate('create', 'Create new', $form, 'shopping-cart');
+		// Toolbar
+		$toolbar = $admin->getNavbar();
+		$toolbar->addSection('new', 'Create', 'file');
+		$admin->connectFormWithNavbar($form, $toolbar->getSection('new'));
 
-		$table->addColumn('name', 'Name')
-			->setWidth('40%')
-			->setSortable(TRUE)
-			->setFilter();
-		$table->addColumn('description', 'Description')
-			->setWidth('60%')
-			->setSortable(TRUE)
-			->setFilter();
+		$table->addAction('manage', 'Manage')
+			->setCustomHref(function ($entity) use ($_this) {
+				return $_this->link('this', array('key' => $entity->id));
+			})
+			->getElementPrototype()->class[] = 'ajax';
+		$table->addAction('delete', 'Delete')
+			->getElementPrototype()->class[] = 'ajax';
+		$admin->connectActionAsDelete($table->getAction('delete'));
 
-		$repository = $this->categoryRepository;
-		$presenter = $this;
-		$action = $table->addAction('on', 'On');
-		$action->onClick[] = function ($button, $entity) use ($presenter, $repository) {
-			$entity->route->published = TRUE;
-			$repository->save($entity);
-
-			if (!$presenter->presenter->isAjax()) {
-				$presenter->redirect('this');
-			}
-
-			$presenter['table']->invalidateControl('table');
-			$presenter->presenter->payload->url = $presenter->link('this');
-		};
-		$action->onRender[] = function ($button, $entity) use ($presenter, $repository) {
-			$button->setDisabled($entity->route->published);
-		};
-
-		$action = $table->addAction('off', 'Off');
-		$action->onClick[] = function ($button, $entity) use ($presenter, $repository) {
-			$entity->route->published = FALSE;
-			$repository->save($entity);
-
-			if (!$presenter->presenter->isAjax()) {
-				$presenter->redirect('this');
-			}
-
-			$presenter['table']->invalidateControl('table');
-			$presenter->presenter->payload->url = $presenter->link('this');
-		};
-		$action->onRender[] = function ($button, $entity) use ($presenter, $repository) {
-			$button->setDisabled(!$entity->route->published);
-		};
-
-		$table->addAction('show', 'Edit')->onClick[] = function ($button, $entity) use ($_this) {
-			if (!$_this->presenter->isAjax()) {
-				$_this->redirect('this', array('key' => $entity->id));
-			}
-			$_this->presenter->payload->url = $_this->link('this', array('key' => $entity->id));
-			$_this->key = $entity->id;
-		};
-		$table->addActionDelete('delete', 'Delete');
-
-		// global actions
-		$table->setGlobalAction($table['delete']);
-
-		return $table;
+		return $admin;
 	}
 
 
