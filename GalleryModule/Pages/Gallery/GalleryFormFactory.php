@@ -9,18 +9,15 @@
  * the file license.txt that was distributed with this source code.
  */
 
-namespace GalleryModule\Forms;
+namespace GalleryModule\Pages\Gallery;
 
-use GalleryModule\Entities\CategoryEntity;
-use GalleryModule\Entities\PhotoEntity;
-use Venne;
 use Venne\Forms\Form;
 use DoctrineModule\Forms\FormFactory;
 
 /**
  * @author Josef Kříž <pepakriz@gmail.com>
  */
-class UploadFormFactory extends FormFactory
+class GalleryFormFactory extends FormFactory
 {
 
 
@@ -35,26 +32,13 @@ class UploadFormFactory extends FormFactory
 
 	public function configure(Form $form)
 	{
-		$form->addFileEntityInput('_photos', 'Upload photos')
-			->setMulti(TRUE);
+		$group = $form->addGroup();
+		$form->addText('name', 'Name');
+		$form
+			->addOne('route')
+			->setCurrentGroup($group)
+			->addTextArea('notation', 'Notation', NULL, 4)->getControlPrototype()->attrs['class'] = 'input-block-level';
 
-		$form->addSaveButton('Upload');
-	}
-
-
-	public function handleSave(Form $form)
-	{
-		/** @var $entity CategoryEntity */
-		$entity = $form->data;
-		$data = $form->getValues();
-
-		foreach ($data['_photos'] as $fileEntity) {
-			if ($fileEntity) {
-				$entity->photos[] = $photoEntity = new PhotoEntity($entity, '');
-				$photoEntity->setPhoto($fileEntity);
-			}
-		}
-
-		parent::handleSave($form);
+		$form->addSaveButton('Save');
 	}
 }

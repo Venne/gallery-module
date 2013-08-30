@@ -4,22 +4,5 @@ services:
 		setup:
 			- '$service->addDictionary(new TranslatorModule\Dictionary(?))'(%modules.gallery.path%/Resources/translations)
 
-	gallery.catalogContent:
-		class: CmsModule\Content\ContentType('GalleryModule\Entities\PageEntity')
-		setup:
-			- addSection('Galleries', @gallery.galleriesControlFactory)
-		tags: [contentType: [name: 'photo gallery']]
-
-	gallery.categoryRepository:
-		class: GalleryModule\Repositories\CategoryRepository
-		factory: @entityManager::getRepository('GalleryModule\Entities\CategoryEntity')
-		tags: [proxy: DoctrineModule\Repositories\BaseRepository]
-
-	gallery.photoRepository:
-		class: GalleryModule\Repositories\PhotoRepository
-		factory: @entityManager::getRepository('GalleryModule\Entities\PhotoEntity')
-		tags: [proxy: DoctrineModule\Repositories\BaseRepository]
-
 includes:
-	- presenters.neon
-	- components.neon
+	- pages.gallery.neon

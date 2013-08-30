@@ -1,8 +1,0 @@
-factories:
-	gallery.pagePresenter:
-		class: GalleryModule\Presenters\PagePresenter
-		tags: [presenter]
-
-	gallery.categoryPresenter:
-		class: GalleryModule\Presenters\CategoryPresenter
-		tags: [presenter]

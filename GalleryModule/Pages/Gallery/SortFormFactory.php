@@ -9,11 +9,8 @@
  * the file license.txt that was distributed with this source code.
  */
 
-namespace GalleryModule\Forms;
+namespace GalleryModule\Pages\Gallery;
 
-use GalleryModule\Entities\CategoryEntity;
-use GalleryModule\Entities\PhotoEntity;
-use Venne;
 use Venne\Forms\Form;
 use DoctrineModule\Forms\FormFactory;
 
@@ -38,7 +35,7 @@ class SortFormFactory extends FormFactory
 		$data = $form->getValues();
 		$sort = json_decode($data['sort'], TRUE);
 
-		foreach ($entity->getPhotos() as $photo) {
+		foreach ($entity->getItems() as $photo) {
 			if (($pos = array_search($photo->id, $sort)) !== false) {
 				$photo->position = $pos;
 			}

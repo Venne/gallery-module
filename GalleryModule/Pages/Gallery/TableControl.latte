@@ -18,10 +18,10 @@
 	{control galleryForm}
 	{snippet view}
 	<ul class="thumbnails" id="sortable" style="margin-left: -20px;">
-		{foreach $control->getCategoryEntity()->photos as $photo}
+		{foreach $control->getCategoryEntity()->items as $photo}
 		<li id="photo-{$photo->id}">
 			<div class="thumbnail">
-				<img class="handle" style="width: 168px; height: 168px; cursor: move;" n:src="$photo->photo->getFileUrl(TRUE) size=>'168x168', format=>8">
+				<img class="handle" style="width: 168px; height: 168px; cursor: move;" n:src="$photo->route->photo->getFileUrl(TRUE) size=>'168x168', format=>8">
 				<div class="caption">
 					<a href="{link edit! $photo->id}" class="ajax btn btn-mini btn-primary">{_Edit}</a>
 					<a href="{link delete! $photo->id}" class="ajax pull-right btn btn-mini pull-right">{_Remove}</a>
@@ -49,7 +49,7 @@
 	</script>
 	{/snippet}
 
-	{if count($control->getCategoryEntity()->photos) > 0}
+	{if count($control->getCategoryEntity()->items) > 0}
 	{control sortForm}
 	{/if}
 

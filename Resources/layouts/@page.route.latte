@@ -1,0 +1,7 @@
+{define #page-content}
+
+	{control vp}
+	{control itemList $control->getItemsBuilder()->orderBy('r.released', 'DESC')->getQuery()->getResult()}
+	{control vp}
+
+{/define}

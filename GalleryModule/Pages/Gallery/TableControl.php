@@ -9,24 +9,18 @@
  * the file license.txt that was distributed with this source code.
  */
 
-namespace GalleryModule\Components;
+namespace GalleryModule\Pages\Gallery;
 
 use CmsModule\Administration\Components\AdminGrid\AdminGrid;
+use CmsModule\Content\Components\RouteItemsControl;
 use CmsModule\Content\SectionControl;
-use GalleryModule\Entities\CategoryEntity;
-use GalleryModule\Entities\PhotoEntity;
-use GalleryModule\Forms\GalleryFormFactory;
-use GalleryModule\Forms\PhotoFormFactory;
-use GalleryModule\Forms\SortFormFactory;
-use GalleryModule\Forms\UploadFormFactory;
-use GalleryModule\Repositories\CategoryRepository;
-use GalleryModule\Repositories\PhotoRepository;
 use Kdyby\Extension\Forms\BootstrapRenderer\BootstrapRenderer;
+use Nette\Application\BadRequestException;
 
 /**
  * @author Josef Kříž <pepakriz@gmail.com>
  */
-class GalleriesControl extends SectionControl
+class TableControl extends SectionControl
 {
 
 	/** @persistent */
@@ -35,11 +29,8 @@ class GalleriesControl extends SectionControl
 	/** @persistent */
 	public $id;
 
-	/** @var CategoryRepository */
-	protected $categoryRepository;
-
-	/** @var PhotoRepository */
-	protected $photoRepository;
+	/** @var ItemRepository */
+	protected $itemRepository;
 
 	/** @var ProductFormFactory */
 	protected $galleryFormFactory;
@@ -53,13 +44,24 @@ class GalleriesControl extends SectionControl
 	/** @var PhotoFormFactory */
 	protected $photoFormFactory;
 
+	/** @var CategoryRepository */
+	private $categoryRepository;
 
-	public function __construct(CategoryRepository $categoryRepository, PhotoRepository $photoRepository, GalleryFormFactory $galleryFormFactory, UploadFormFactory $uploadFormFactory, SortFormFactory $sortFormFactory, PhotoFormFactory $photoFormFactory)
+
+	/**
+	 * @param CategoryRepository $categoryRepository
+	 * @param ItemRepository $itemRepository
+	 * @param GalleryFormFactory $galleryFormFactory
+	 * @param UploadFormFactory $uploadFormFactory
+	 * @param SortFormFactory $sortFormFactory
+	 * @param PhotoFormFactory $photoFormFactory
+	 */
+	public function __construct(CategoryRepository $categoryRepository, ItemRepository $itemRepository, GalleryFormFactory $galleryFormFactory, UploadFormFactory $uploadFormFactory, SortFormFactory $sortFormFactory, PhotoFormFactory $photoFormFactory)
 	{
 		parent::__construct();
 
 		$this->categoryRepository = $categoryRepository;
-		$this->photoRepository = $photoRepository;
+		$this->itemRepository = $itemRepository;
 		$this->galleryFormFactory = $galleryFormFactory;
 		$this->uploadFormFactory = $uploadFormFactory;
 		$this->sortFormFactory = $sortFormFactory;
@@ -68,7 +70,7 @@ class GalleriesControl extends SectionControl
 
 
 	/**
-	 * @return CategoryEntity
+	 * @return RouteEntity
 	 */
 	public function getCategoryEntity()
 	{
@@ -81,68 +83,7 @@ class GalleriesControl extends SectionControl
 	 */
 	public function getPhotoEntity()
 	{
-		return $this->id ? $this->photoRepository->find($this->id) : NULL;
-	}
-
-
-	public function handleOn($id)
-	{
-		if (!$entity = $this->categoryRepository->find($id)) {
-			throw new BadRequestException;
-		}
-
-		$entity->route->published = TRUE;
-		$this->categoryRepository->save($entity);
-
-		if (!$this->presenter->isAjax()) {
-			$this->redirect('this', array('id' => NULL));
-		}
-
-		$this['table']->invalidateControl('table');
-		$this->presenter->payload->url = $this->link('this', array('id' => NULL));
-		$this->id = NULL;
-	}
-
-
-	public function handleOff($id)
-	{
-		if (!$entity = $this->categoryRepository->find($id)) {
-			throw new BadRequestException;
-		}
-
-		$entity->route->published = FALSE;
-		$this->categoryRepository->save($entity);
-
-		if (!$this->presenter->isAjax()) {
-			$this->redirect('this', array('id' => NULL));
-		}
-
-		$this['table']->invalidateControl('table');
-		$this->presenter->payload->url = $this->link('this', array('id' => NULL));
-		$this->id = NULL;
-	}
-
-
-	public function handleDelete($id)
-	{
-		$categoryEntity = $this->getCategoryEntity();
-
-		foreach ($categoryEntity->getPhotos() as $key => $photo) {
-			if ($photo->id == $id) {
-				$categoryEntity->getPhotos()->remove($key);
-				break;
-			}
-		}
-
-		$this->categoryRepository->save($categoryEntity);
-
-		if (!$this->presenter->isAjax()) {
-			$this->redirect('this');
-		}
-
-		$this->presenter->payload->url = $this->link('this');
-		$this->invalidateControl('view');
-		$this->id = NULL;
+		return $this->id ? $this->itemRepository->find($this->id) : NULL;
 	}
 
 
@@ -159,67 +100,52 @@ class GalleriesControl extends SectionControl
 	}
 
 
+	public function handleDelete($id)
+	{
+		if (($entity = $this->itemRepository->find($id)) === NULL) {
+			throw new BadRequestException;
+		}
+
+		$this->itemRepository->delete($entity);
+
+		if (!$this->presenter->isAjax()) {
+			$this->redirect('this', array('id' => NULL));
+		}
+
+		$this->presenter->payload->url = $this->link('this', array('id' => NULL));
+		$this->invalidateControl('view');
+	}
+
+
 	protected function createComponentTable()
 	{
 		$_this = $this;
-		$admin = new AdminGrid($this->categoryRepository);
-
-		// columns
+		$adminControl = new RouteItemsControl($this->categoryRepository, $this->getEntity());
+		$admin = $adminControl->getTable();
 		$table = $admin->getTable();
-		$table->setTranslator($this->presenter->context->translator->translator);
-		$table->addColumn('name', 'Name')
-			->setSortable()
-			->getCellPrototype()->width = '40%';
-		$table->getColumn('name')
-			->setFilter()->setSuggestion();
 
-		$table->addColumn('description', 'Description')
-			->setSortable()
-			->getCellPrototype()->width = '60%';
 
-		// actions
-		$table->addAction('on', 'On')
-			->setCustomRender(function ($entity, $element) {
-				if ((bool)$entity->route->published) {
-					$element->class[] = 'disabled';
-				};
-				return $element;
-			})
-			->setCustomHref(function ($entity) use ($_this) {
-				return $_this->link('on!', array($entity->id));
-			})
-			->getElementPrototype()->class[] = 'ajax';
-		$table->addAction('off', 'Off')
-			->setCustomRender(function ($entity, $element) {
-				if (!(bool)$entity->route->published) {
-					$element->class[] = 'disabled';
-				};
-				return $element;
-			})
-			->setCustomHref(function ($entity) use ($_this) {
-				return $_this->link('off!', array($entity->id));
-			})
-			->getElementPrototype()->class[] = 'ajax';
-
-		$form = $admin->createForm($this->galleryFormFactory, 'Create new', function () use ($_this) {
-			return new \GalleryModule\Entities\CategoryEntity($_this->entity, '');
-		});
+		$repository = $this->categoryRepository;
+		$entity = $this->entity;
+		$form = $admin->createForm($this->galleryFormFactory, 'Category', function () use ($repository, $entity) {
+			return $repository->createNew(array($entity));
+		}, \CmsModule\Components\Table\Form::TYPE_LARGE);
 
 		// Toolbar
 		$toolbar = $admin->getNavbar();
 		$toolbar->addSection('new', 'Create', 'file');
 		$admin->connectFormWithNavbar($form, $toolbar->getSection('new'));
 
-		$table->addAction('manage', 'Manage')
-			->setCustomHref(function ($entity) use ($_this) {
-				return $_this->link('this', array('key' => $entity->id));
-			})
-			->getElementPrototype()->class[] = 'ajax';
 		$table->addAction('delete', 'Delete')
 			->getElementPrototype()->class[] = 'ajax';
 		$admin->connectActionAsDelete($table->getAction('delete'));
 
-		return $admin;
+		$table->getAction('edit')
+			->setCustomHref(function ($entity) use ($_this) {
+				return $_this->link('this', array('key' => $entity->id));
+			});
+
+		return $adminControl;
 	}
 
 
@@ -302,7 +228,6 @@ class GalleriesControl extends SectionControl
 
 	public function render()
 	{
-		$this->template->categoryRepository = $this->categoryRepository;
 		$this->template->render();
 	}
 }

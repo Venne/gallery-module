@@ -9,13 +9,10 @@
  * the file license.txt that was distributed with this source code.
  */
 
-namespace GalleryModule\Forms;
+namespace GalleryModule\Pages\Gallery;
 
-use GalleryModule\Entities\PhotoEntity;
-use Venne;
 use Venne\Forms\Form;
 use DoctrineModule\Forms\FormFactory;
-use DoctrineModule\Forms\Containers\EntityContainer;
 
 /**
  * @author Josef Kříž <pepakriz@gmail.com>
