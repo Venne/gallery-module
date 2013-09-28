@@ -16,7 +16,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @author Josef Kříž <pepakriz@gmail.com>
  * @ORM\Entity(repositoryClass="\GalleryModule\Pages\Gallery\RouteRepository")
- * @ORM\Table(name="galleryRoute")
+ * @ORM\Table(name="gallery_route")
  */
 class RouteEntity extends AbstractRouteEntity
 {

@@ -16,7 +16,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @author Josef Kříž <pepakriz@gmail.com>
  * @ORM\Entity(repositoryClass="\GalleryModule\Pages\Gallery\CategoryRepository")
- * @ORM\Table(name="galleryCategory")
+ * @ORM\Table(name="gallery_category")
  */
 class CategoryEntity extends AbstractCategoryEntity
 {
