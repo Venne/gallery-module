@@ -7,7 +7,7 @@
 
 {define #category}
 {if !isset($flags)}{var flags=>0}{/if}
-{if !isset($size)}{var size=>'300x'}{/if}
+{if !isset($size)}{var size=>'350x'}{/if}
 
 {if $route->description}
 	<p class="lead">
@@ -29,23 +29,23 @@
 {/define}
 
 {define #category-head}
-<div class="row-fluid">
-	<ul class="thumbnails">
+<div class="row">
+	<div class="thumbnails">
 		{/define}
 
 		{define #category-foot}
-	</ul>
+	</div>
 </div>
 {/define}
 
 {define #category-item}
-	<li class="span4">
+	<div class="col-md-4">
 		<div class="thumbnail">
 			<a href="{$photo->photo->getFileUrl()}" rel="lightbox"{if $photo->description} title="{$photo->description}"{/if}><img alt="{$photo->name}" n:src="$photo->photo->getFileUrl(TRUE) size=>$size, format=>$flags"></a>
 			<div class="caption" n:if="$photo->name || $photo->description">
 				<h3 n:if="$photo->name">{$photo->name}</h3>
-				<p n:if="$photo->description">{$photo->description}</p>
+				<p n:if="$photo->notation">{$photo->notation}</p>
 			</div>
 		</div>
-	</li>
+	</div>
 {/define}

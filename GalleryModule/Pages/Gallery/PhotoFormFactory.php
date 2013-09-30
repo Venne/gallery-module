@@ -32,9 +32,12 @@ class PhotoFormFactory extends FormFactory
 
 	public function configure(Form $form)
 	{
-		$form->addGroup();
+		$group = $form->addGroup();
+
 		$form->addText('name', 'Name');
-		$form->addTextArea('description', 'Description', NULL, 4)->getControlPrototype()->attrs['class'] = 'input-block-level';
+		$form->addOne('route')
+			->setCurrentGroup($group)
+			->addTextArea('notation', 'Description', NULL, 4);
 
 		$form->addSaveButton('Save');
 	}

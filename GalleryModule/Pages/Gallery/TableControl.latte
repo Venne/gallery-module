@@ -1,12 +1,11 @@
 <ul class="breadcrumb">
 
 	<li{if !$control->key} class="active"{/if}>
-		<span class="divider">/</span> {if $control->key}<a class="ajax" href="{link this key=>NULL, productEdit=>NULL, categoryCreate=>NULL, productCreate=>NULL}">{/if}root{if $control->key}</a>{/if}
+		{if $control->key}<a class="ajax" href="{link this key=>NULL, productEdit=>NULL, categoryCreate=>NULL, productCreate=>NULL}">{/if}root{if $control->key}</a>{/if}
 	</li>
 
 	{if $control->key}
 		<li class="active">
-			<span class="divider">/</span>
 			{$control->getCategoryEntity()->name}
 		</li>
 	{/if}
@@ -17,24 +16,24 @@
 {else}
 	{control galleryForm}
 	{snippet view}
-	<ul class="thumbnails" id="sortable" style="margin-left: -20px;">
+	<div class="thumbnails row" id="sortable">
 		{foreach $control->getCategoryEntity()->items as $photo}
-		<li id="photo-{$photo->id}">
+		<div id="photo-{$photo->id}" class="item col-md-3" style="width: 230px; margin: 15px 0;">
 			<div class="thumbnail">
 				<img class="handle" style="width: 168px; height: 168px; cursor: move;" n:src="$photo->route->photo->getFileUrl(TRUE) size=>'168x168', format=>8">
 				<div class="caption">
-					<a href="{link edit! $photo->id}" class="ajax btn btn-mini btn-primary">{_Edit}</a>
-					<a href="{link delete! $photo->id}" class="ajax pull-right btn btn-mini pull-right">{_Remove}</a>
+					<a href="{link edit! $photo->id}" class="ajax btn btn-xs btn-primary">{_Edit}</a>
+					<a href="{link delete! $photo->id}" class="ajax pull-right btn btn-xs btn-default pull-right">{_Remove}</a>
 				</div>
 			</div>
-		</li>
+		</div>
 		{/foreach}
-	</ul>
+	</div>
 	<script>
 		$(function () {
 			var sortFunc = function (event, ui) {
 				var data = [];
-				$("#sortable li").each(function () {
+				$("#sortable .item").each(function () {
 					data.push($(this).attr('id').replace('photo-', ''));
 				});
 				$("#frmsortForm-sort").val(JSON.stringify(data));
@@ -57,21 +56,25 @@
 
 	{snippet form}
 		{if $control->id}
-		<div class="modal large hide" id="editForm">
-			<div class="modal-header">
-				<a class="close" onClick="$('#editForm').modal('hide')">×</a>
+		<div class="modal fade" id="editForm" tabindex="-1" role="dialog" data-focus-on="input:first" aria-hidden="true">>
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<a class="close" onClick="$('#editForm').modal('hide')">×</a>
 
-				<h3>{_Photo}</h3>
-			</div>
-			<div class="modal-body">
-				{snippet editForm}
-				{control photoForm}
-				{/snippet}
+						<h3>{_Photo}</h3>
+					</div>
+					<div class="modal-body">
+						{snippet editForm}
+						{control photoForm}
+						{/snippet}
+					</div>
+				</div>
 			</div>
 		</div>
 		<script>
 			$(function () {
-				$('#editForm').modal().on('hidden', function () {
+				$('#editForm').modal().on('hidden.bs.modal', function () {
 					$.nette.ajax({ url: {link edit! id=>NULL}});
 				});
 			});
