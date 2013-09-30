@@ -12,6 +12,7 @@
 namespace GalleryModule\Pages\Gallery;
 
 use CmsModule\Administration\Components\AdminGrid\AdminGrid;
+use CmsModule\Administration\Components\AjaxFileUploaderControl;
 use CmsModule\Content\Components\RouteItemsControl;
 use CmsModule\Content\SectionControl;
 use Kdyby\Extension\Forms\BootstrapRenderer\BootstrapRenderer;
@@ -47,6 +48,9 @@ class TableControl extends SectionControl
 	/** @var CategoryRepository */
 	private $categoryRepository;
 
+	/** @var AjaxFileUploaderControlFactory */
+	private $ajaxFileUploaderFactory;
+
 
 	/**
 	 * @param CategoryRepository $categoryRepository
@@ -56,7 +60,7 @@ class TableControl extends SectionControl
 	 * @param SortFormFactory $sortFormFactory
 	 * @param PhotoFormFactory $photoFormFactory
 	 */
-	public function __construct(CategoryRepository $categoryRepository, ItemRepository $itemRepository, GalleryFormFactory $galleryFormFactory, UploadFormFactory $uploadFormFactory, SortFormFactory $sortFormFactory, PhotoFormFactory $photoFormFactory)
+	public function __construct(CategoryRepository $categoryRepository, ItemRepository $itemRepository, GalleryFormFactory $galleryFormFactory, UploadFormFactory $uploadFormFactory, SortFormFactory $sortFormFactory, PhotoFormFactory $photoFormFactory, AjaxFileUploaderControlFactory $ajaxFileUploaderFactory)
 	{
 		parent::__construct();
 
@@ -66,6 +70,7 @@ class TableControl extends SectionControl
 		$this->uploadFormFactory = $uploadFormFactory;
 		$this->sortFormFactory = $sortFormFactory;
 		$this->photoFormFactory = $photoFormFactory;
+		$this->ajaxFileUploaderFactory = $ajaxFileUploaderFactory;
 	}
 
 
@@ -114,6 +119,31 @@ class TableControl extends SectionControl
 
 		$this->presenter->payload->url = $this->link('this', array('id' => NULL));
 		$this->invalidateControl('view');
+	}
+
+
+	protected function createComponentAjaxFileUploader()
+	{
+		$_this = $this;
+
+		$this->ajaxFileUploaderFactory->setCategoryEntity($this->getCategoryEntity());
+
+		/** @var AjaxFileUploaderControlFactory $control */
+		$control = $this->ajaxFileUploaderFactory->invoke($this->template->basePath);
+		$control->onSuccess[] = function () use ($_this) {
+			$_this->presenter->invalidateControl('content');
+		};
+		$control->onError[] = function (AjaxFileUploaderControl $control) use ($_this) {
+			foreach ($control->getErrors() as $e) {
+				if ($e['class'] === 'Doctrine\DBAL\DBALException' && strpos($e['message'], 'Duplicate entry') !== false) {
+					$_this->flashMessage('Duplicate entry', 'warning');
+				} else {
+					$_this->flashMessage($e['message']);
+				}
+			}
+			$_this->presenter->invalidateControl('content');
+		};
+		return $control;
 	}
 
 

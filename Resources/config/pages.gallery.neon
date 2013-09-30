@@ -43,6 +43,9 @@ services:
 		setup:
 			- injectFactory(@cms.admin.ajaxFormFactory)
 
+	gallery.pages.ajaxFileUploaderFactory:
+		class: GalleryModule\Pages\Gallery\AjaxFileUploaderControlFactory(%publicDir%/ajaxFileUpload, %publicDir%)
+
 
 
 factories:
