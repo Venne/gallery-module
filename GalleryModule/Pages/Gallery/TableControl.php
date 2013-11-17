@@ -150,13 +150,13 @@ class TableControl extends SectionControl
 	protected function createComponentTable()
 	{
 		$_this = $this;
-		$adminControl = new RouteItemsControl($this->categoryRepository, $this->getEntity());
+		$adminControl = new RouteItemsControl($this->categoryRepository, $this->getExtendedPage());
 		$admin = $adminControl->getTable();
 		$table = $admin->getTable();
 
 
 		$repository = $this->categoryRepository;
-		$entity = $this->entity;
+		$entity = $this->extendedPage;
 		$form = $admin->createForm($this->galleryFormFactory, 'Category', function () use ($repository, $entity) {
 			return $repository->createNew(array($entity));
 		}, \CmsModule\Components\Table\Form::TYPE_LARGE);
