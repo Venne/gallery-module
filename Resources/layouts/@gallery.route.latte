@@ -1,0 +1,7 @@
+{define #page-content}
+
+	{control pagination, config => [ variant => '@gallery.route' ]}
+	{control itemList $control->getItemsBuilder()->orderBy('r.released', 'DESC')->getQuery()->getResult(), config => [ variant => '@gallery.route' ]}
+	{control pagination, config => [ variant => '@gallery.route' ]}
+
+{/define}
