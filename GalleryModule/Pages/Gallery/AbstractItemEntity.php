@@ -26,10 +26,6 @@ abstract class AbstractItemEntity extends ExtendedRouteEntity
 	protected $position;
 
 
-	/**
-	 * @param PageEntity $page
-	 * @param $name
-	 */
 	protected function startup()
 	{
 		parent::startup();
